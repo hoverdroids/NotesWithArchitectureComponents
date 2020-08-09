@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.hoverdroids.noteswitharchitecturecomponents.ui.NoteAdapter
 import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
 
  class MainActivity : AppCompatActivity() {
@@ -14,6 +17,13 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val adapter = NoteAdapter()
+
+        val recycler = findViewById<RecyclerView>(R.id.recycler)
+        recycler.layoutManager = LinearLayoutManager(this)
+        recycler.setHasFixedSize(true)
+        recycler.adapter = adapter
+
         //Get a new or existing ViewModel from the ViewModelProvider
         noteViewModel = ViewModelProvider(this).get(NoteViewModel::class.java)
 
@@ -21,7 +31,7 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
         //The onChanged() method fires when the observed data changes and the activity is in the foreground
         noteViewModel.allNotes.observe(this, Observer { notes ->
             // Update the cached copy of the words in the adapter.
-            //notes?.let { adapter.setNotes(it) }
+            notes?.let { adapter.notes = notes }
         })
     }
 }
