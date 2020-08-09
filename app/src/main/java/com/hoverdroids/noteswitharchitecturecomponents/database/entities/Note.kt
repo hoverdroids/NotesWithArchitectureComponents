@@ -8,8 +8,8 @@ import androidx.room.PrimaryKey
 //name as the property. I'm adding here to highlight the feature
 @Entity(tableName = "note_table")
 data class Note(
-    @PrimaryKey(autoGenerate = true) var id: Int,
     @ColumnInfo(name="title") var title: String,
     @ColumnInfo(name="description") var description: String = "",
-    @ColumnInfo(name="priority") var priority: Int
+    @ColumnInfo(name="priority") var priority: Int,
+    @PrimaryKey(autoGenerate = true) var id: Int = 0//last so that we don't have to pass an ID value or named arguments
 )

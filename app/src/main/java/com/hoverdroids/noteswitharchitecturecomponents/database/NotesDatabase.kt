@@ -60,7 +60,7 @@ abstract class NotesDatabase: RoomDatabase() {
                     if(clearDatabaseEachTime) database.noteDao().deleteAllNotes()
 
                     populateDatabaseFromJson(database.noteDao(), R.raw.notes)
-                    populateDatabaseFromCode(database.noteDao(), Note(12343, "Title11", "sdseeeedd", 1))
+                    populateDatabaseFromCode(database.noteDao(), Note("Title11", "sdseeeedd", 1))
                 }
             }
         }

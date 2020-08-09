@@ -16,9 +16,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hoverdroids.noteswitharchitecturecomponents.database.entities.Note
 import com.hoverdroids.noteswitharchitecturecomponents.ui.NoteAdapter
 import com.hoverdroids.noteswitharchitecturecomponents.ui.NoteItemTouchHandler
+import com.hoverdroids.noteswitharchitecturecomponents.ui.OnItemClickListener
 import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
 
- class MainActivity : AppCompatActivity(), View.OnClickListener {
+ class MainActivity : AppCompatActivity(), View.OnClickListener, OnItemClickListener {
 
     private lateinit var noteViewModel: NoteViewModel
 
@@ -29,6 +30,7 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
         findViewById<FloatingActionButton>(R.id.add_note).setOnClickListener(this)
 
         val adapter = NoteAdapter()
+        adapter.onItemClickListener = this
 
         val recycler = findViewById<RecyclerView>(R.id.recycler)
         recycler.layoutManager = LinearLayoutManager(this)
@@ -40,7 +42,7 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
 
         //Add an observer on the LiveData returned by getAllNotes
         //The onChanged() method fires when the observed data changes and the activity is in the foreground
-        noteViewModel.allNotes.observe(this, Observer { notes ->
+        noteViewModel.getAllNotes().observe(this, Observer { notes ->
             // Update the cached copy of the words in the adapter.
             notes?.let { adapter.notes = notes }
         })
@@ -48,24 +50,37 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
         ItemTouchHelper(NoteItemTouchHandler(noteViewModel, adapter)).attachToRecyclerView(recycler)
     }
 
-     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-         super.onActivityResult(requestCode, resultCode, data)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-         if(requestCode == INTENT_REQUEST_ADD_NOTE && resultCode == RESULT_OK) {
-             data?.let {
-                 val titleText = data.getStringExtra(EXTRA_TITLE) ?: ""
-                 val descriptionText = data.getStringExtra(EXTRA_DESCRIPTION) ?: ""
-                 val priorityValue = data.getIntExtra(EXTRA_PRIORITY, 1)
+        when{
+            requestCode == INTENT_REQUEST_ADD_NOTE && resultCode == RESULT_OK && data != null -> {
+                val titleText = data.getStringExtra(EXTRA_TITLE) ?: ""
+                val descriptionText = data.getStringExtra(EXTRA_DESCRIPTION) ?: ""
+                val priorityValue = data.getIntExtra(EXTRA_PRIORITY, 1)
 
-                 val note = Note(-1, titleText, descriptionText, priorityValue)
-                 noteViewModel.insert(note)
+                val note = Note(titleText, descriptionText, priorityValue)
+                noteViewModel.insert(note)
 
-                 Toast.makeText(this, "Note Saved", Toast.LENGTH_SHORT).show()
-             }
-         } else {
-             Toast.makeText(this, "Note Not Saved", Toast.LENGTH_SHORT).show()
-         }
-     }
+                Toast.makeText(this, "Note Saved", Toast.LENGTH_SHORT).show()
+            }
+            requestCode == INTENT_REQUEST_EDIT_NOTE && resultCode == RESULT_OK && data != null -> {
+                val id = data.getIntExtra(EXTRA_ID, -1)
+                if(id == -1) {
+                    Toast.makeText(this, "Note can't be updated", Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                val title = data.getStringExtra(EXTRA_TITLE) ?: ""
+                val description = data.getStringExtra(EXTRA_DESCRIPTION) ?: ""
+                val priority = data.getIntExtra(EXTRA_PRIORITY, 1)
+                noteViewModel.update(Note(title, description, priority, id))
+
+                Toast.makeText(this, "Note Updated", Toast.LENGTH_SHORT).show()
+            }
+            else -> Toast.makeText(this, "Note Not Saved", Toast.LENGTH_SHORT).show()
+        }
+    }
 
      override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -86,7 +101,16 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
      }
 
      override fun onClick(view: View) {
-         val intent = Intent(this, AddNoteActivity::class.java)
+         val intent = Intent(this, AddEditNoteActivity::class.java)
          startActivityForResult(intent, INTENT_REQUEST_ADD_NOTE)
+     }
+
+     override fun onItemClick(note: Note) {
+         val intent = Intent(this, AddEditNoteActivity::class.java)
+         intent.putExtra(EXTRA_ID, note.id)
+         intent.putExtra(EXTRA_TITLE, note.title)
+         intent.putExtra(EXTRA_DESCRIPTION, note.description)
+         intent.putExtra(EXTRA_PRIORITY, note.priority)
+         startActivityForResult(intent, INTENT_REQUEST_EDIT_NOTE)
      }
  }

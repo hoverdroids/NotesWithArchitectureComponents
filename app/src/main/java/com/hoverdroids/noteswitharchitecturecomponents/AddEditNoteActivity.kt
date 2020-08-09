@@ -11,7 +11,7 @@ import android.widget.EditText
 import android.widget.NumberPicker
 import android.widget.Toast
 
-class AddNoteActivity : AppCompatActivity() {
+class AddEditNoteActivity : AppCompatActivity() {
 
     private lateinit var title: EditText
     private lateinit var description: EditText
@@ -29,7 +29,16 @@ class AddNoteActivity : AppCompatActivity() {
         priority.maxValue = 10
 
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_close)
-        setTitle("Add Note")
+
+        when(intent.hasExtra(EXTRA_ID)) {
+            true -> {
+                setTitle("Edit Note")
+                title.setText(intent.getStringExtra(EXTRA_TITLE))
+                description.setText(intent.getStringExtra(EXTRA_DESCRIPTION))
+                priority.value = intent.getIntExtra(EXTRA_PRIORITY, 1)
+            }
+            else -> { setTitle("Add Note")}
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -62,6 +71,10 @@ class AddNoteActivity : AppCompatActivity() {
         intent.putExtra(EXTRA_TITLE, titleText)
         intent.putExtra(EXTRA_DESCRIPTION, descriptionText)
         intent.putExtra(EXTRA_PRIORITY, priorityValue)
+
+        val id = getIntent().getIntExtra(EXTRA_ID, -1)
+        if(id != -1) intent.putExtra(EXTRA_ID, id)
+
         setResult(Activity.RESULT_OK, intent)
         finish()
     }

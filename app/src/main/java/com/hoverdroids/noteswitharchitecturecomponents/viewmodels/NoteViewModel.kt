@@ -11,8 +11,8 @@ import com.hoverdroids.noteswitharchitecturecomponents.database.entities.Note
 class NoteViewModel(application: Application): AndroidViewModel(application) {
 
     private val repository: NotesRepository = NotesRepository(application, viewModelScope)
-    var allNotes: LiveData<List<Note>> = repository.getAllNotes()
 
+    fun getAllNotes() = repository.getAllNotes()
     fun insert(note: Note) = repository.insert(note)
     fun update(note: Note) = repository.update(note)
     fun delete(note: Note) = repository.delete(note)
