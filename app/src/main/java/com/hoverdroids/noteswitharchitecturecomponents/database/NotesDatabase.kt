@@ -27,18 +27,17 @@ abstract class NotesDatabase: RoomDatabase() {
         private const val clearDatabaseEachTime = false
 
         fun getDatabase(context: Context, coroutineScope: CoroutineScope): NotesDatabase {
-            INSTANCE?.let { return it }
-
             //If the INSTANCE is not null then return it. Otherwise, create the database.
-            synchronized(this) {
-                INSTANCE = Room.databaseBuilder(
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
                     context.applicationContext,
                     NotesDatabase::class.java,
                     "note-database")
                     //.fallbackToDestructiveMigration()
                     .addCallback(NoteDatabaseCallback(coroutineScope, context.resources))
                     .build()
-                return INSTANCE!!
+                INSTANCE = instance
+                instance
             }
         }
 
@@ -51,8 +50,8 @@ abstract class NotesDatabase: RoomDatabase() {
          * Override the onOpen method to populate the database.
          * For this sample, we clear the database every time it is created or opened.
          */
-        override fun onOpen(db: SupportSQLiteDatabase) {
-            super.onOpen(db)
+        override fun onCreate(db: SupportSQLiteDatabase) {
+            super.onCreate(db)
             INSTANCE?.let{ database ->
                 scope.launch(Dispatchers.IO){
 

@@ -2,6 +2,7 @@
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
 
@@ -18,5 +19,9 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
 
         //Add an observer on the LiveData returned by getAllNotes
         //The onChanged() method fires when the observed data changes and the activity is in the foreground
+        noteViewModel.allNotes.observe(this, Observer { notes ->
+            // Update the cached copy of the words in the adapter.
+            //notes?.let { adapter.setNotes(it) }
+        })
     }
 }

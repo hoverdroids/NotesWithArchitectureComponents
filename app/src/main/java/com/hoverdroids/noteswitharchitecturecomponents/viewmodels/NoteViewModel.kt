@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.hoverdroids.noteswitharchitecturecomponents.database.NoteDao
+import com.hoverdroids.noteswitharchitecturecomponents.database.NotesDatabase
 import com.hoverdroids.noteswitharchitecturecomponents.database.NotesRepository
 import com.hoverdroids.noteswitharchitecturecomponents.database.entities.Note
 
@@ -11,9 +13,17 @@ import com.hoverdroids.noteswitharchitecturecomponents.database.entities.Note
 class NoteViewModel(application: Application): AndroidViewModel(application) {
 
     //Get a repository the gets/puts data in a given coroutineScope
-    private val repository: NotesRepository = NotesRepository(application, viewModelScope)
+    private val repository: NotesRepository
+    var allNotes: LiveData<List<Note>>
 
-    fun getAllNotes(): LiveData<List<Note>> {
-        return repository.getAllNotes()
+    init {
+
+        val noteDao = NotesDatabase.getDatabase(application, viewModelScope).noteDao()
+        repository = NotesRepository(noteDao)
+        allNotes = repository.getAllNotes()
     }
+
+    /*fun getAllNotes(): LiveData<List<Note>> {
+        return repository.getAllNotes()
+    }*/
 }

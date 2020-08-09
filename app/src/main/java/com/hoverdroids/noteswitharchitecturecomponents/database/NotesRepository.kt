@@ -13,11 +13,8 @@ import kotlinx.coroutines.CoroutineScope
  * Base on given criteria, the repository pull from one or the other to abstract the different components so they don't need to rely on any
  * knowledge of the
  */
-class NotesRepository(application: Application, coroutineScope: CoroutineScope) {
+class NotesRepository(private val noteDao: NoteDao) {
 
-    //private var database: NoteDatabase = Room.databaseBuilder(application, NoteDatabase::class.java, "note-database").build()
-    private var database: NotesDatabase = NotesDatabase.getDatabase(application, coroutineScope)
-    private var noteDao: NoteDao = database.noteDao()
     private var allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
 
     suspend fun insert(note: Note) {
