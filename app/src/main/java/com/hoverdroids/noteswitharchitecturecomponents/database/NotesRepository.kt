@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
 import com.hoverdroids.noteswitharchitecturecomponents.database.entities.Note
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Abstracted Repository as promoted by the Architecture Guide.
@@ -14,24 +16,24 @@ import kotlinx.coroutines.CoroutineScope
  * Base on given criteria, the repository pull from one or the other to abstract the different components so they don't need to rely on any
  * knowledge of the
  */
-class NotesRepository(application: Application, coroutineScope: CoroutineScope) {
+class NotesRepository(application: Application, private val coroutineScope: CoroutineScope) {
 
     private val noteDao = NotesDatabase.getDatabase(application, coroutineScope).noteDao()
 
-    suspend fun insert(note: Note) {
-        noteDao.insert(note)
+    fun insert(note: Note) {
+        coroutineScope.launch(Dispatchers.IO) { noteDao.insert(note) }
     }
 
-    suspend fun update(note: Note) {
-        noteDao.update(note)
+    fun update(note: Note) {
+        coroutineScope.launch(Dispatchers.IO) { noteDao.update(note) }
     }
 
-    suspend fun delete(note: Note) {
-        noteDao.delete(note)
+    fun delete(note: Note) {
+        coroutineScope.launch(Dispatchers.IO) { noteDao.delete(note) }
     }
 
-    suspend fun deleteAll() {
-        noteDao.deleteAllNotes()
+    fun deleteAll() {
+        coroutineScope.launch(Dispatchers.IO) { noteDao.deleteAllNotes() }
     }
 
     fun getNote(id: Int): LiveData<Note> {

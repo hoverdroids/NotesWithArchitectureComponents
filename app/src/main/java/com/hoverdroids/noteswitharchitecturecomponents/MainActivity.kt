@@ -1,17 +1,21 @@
  package com.hoverdroids.noteswitharchitecturecomponents
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hoverdroids.noteswitharchitecturecomponents.database.entities.Note
 import com.hoverdroids.noteswitharchitecturecomponents.ui.NoteAdapter
+import com.hoverdroids.noteswitharchitecturecomponents.ui.NoteItemTouchHandler
 import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
 
  class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -40,6 +44,8 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
             // Update the cached copy of the words in the adapter.
             notes?.let { adapter.notes = notes }
         })
+
+        ItemTouchHelper(NoteItemTouchHandler(noteViewModel, adapter)).attachToRecyclerView(recycler)
     }
 
      override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -58,6 +64,24 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
              }
          } else {
              Toast.makeText(this, "Note Not Saved", Toast.LENGTH_SHORT).show()
+         }
+     }
+
+     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+     }
+
+     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+         return when(item.itemId) {
+             R.id.delete_all_notes -> {
+                 noteViewModel.deleteAll()
+                 Toast.makeText(this, "All notes deleted", Toast.LENGTH_SHORT).show()
+                 return true
+             }
+             else -> {
+                 super.onOptionsItemSelected(item)
+             }
          }
      }
 
