@@ -44,7 +44,7 @@ import com.hoverdroids.noteswitharchitecturecomponents.viewmodels.NoteViewModel
         //The onChanged() method fires when the observed data changes and the activity is in the foreground
         noteViewModel.getAllNotes().observe(this, Observer { notes ->
             // Update the cached copy of the words in the adapter.
-            notes?.let { adapter.notes = notes }
+            notes?.let { adapter.submitList(notes) }
         })
 
         ItemTouchHelper(NoteItemTouchHandler(noteViewModel, adapter)).attachToRecyclerView(recycler)

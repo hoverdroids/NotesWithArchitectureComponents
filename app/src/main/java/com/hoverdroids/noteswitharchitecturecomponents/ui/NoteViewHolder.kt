@@ -15,7 +15,7 @@ class NoteViewHolder(var noteAdapter: NoteAdapter, view: View, var onItemClickLi
     init {
         view.setOnClickListener(View.OnClickListener {
             if(adapterPosition != NO_POSITION) {
-                onItemClickListener?.onItemClick(noteAdapter.notes[adapterPosition])
+                onItemClickListener?.onItemClick(noteAdapter.getItemAt(adapterPosition))
             }
         })
     }
