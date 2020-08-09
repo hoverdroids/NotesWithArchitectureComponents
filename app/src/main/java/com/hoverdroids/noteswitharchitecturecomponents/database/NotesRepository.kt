@@ -2,6 +2,7 @@ package com.hoverdroids.noteswitharchitecturecomponents.database
 
 import android.app.Application
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
 import com.hoverdroids.noteswitharchitecturecomponents.database.entities.Note
 import kotlinx.coroutines.CoroutineScope
 
@@ -13,9 +14,9 @@ import kotlinx.coroutines.CoroutineScope
  * Base on given criteria, the repository pull from one or the other to abstract the different components so they don't need to rely on any
  * knowledge of the
  */
-class NotesRepository(private val noteDao: NoteDao) {
+class NotesRepository(application: Application, coroutineScope: CoroutineScope) {
 
-    private var allNotes: LiveData<List<Note>> = noteDao.getAllNotes()
+    private val noteDao = NotesDatabase.getDatabase(application, coroutineScope).noteDao()
 
     suspend fun insert(note: Note) {
         noteDao.insert(note)
